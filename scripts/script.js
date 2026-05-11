@@ -2,109 +2,145 @@ const boxes = document.getElementById('boxes');
 const sits = document.getElementById('sits');
 
 let count = 0;
+
 boxes.addEventListener('click', (event) => {
-    const box = document.getElementById(event.target.innerText);
-    const selectedSit = document.getElementById('selected-sit')
-    const priceTotal = document.getElementsByClassName('priceTotal')[0];
-    const grandTotal = document.getElementsByClassName('priceTotal')[1];
+
+    const box = event.target.innerText;
+
     const couponField = document.getElementById('coupon');
     const couponButton = document.getElementById('coupon-button');
-    const totalSits = document.getElementById('total-sits');
-    if (event.target.classList.contains('box')) {
-        if (count < 4) {
 
-            box.classList.remove('bg-gray-100')
-            box.classList.add('bg-[#1DD100]')
+    if (event.target.classList.contains('box')) {
+
+        if (count < 4) {
+            removeClass(box, 'bg-gray-100');
+            addClass(box, 'bg-[#1DD100]');
 
             count = count + 1;
-            totalSits.innerText = parseInt(totalSits.innerText) - 1;
-            selectedSit.innerText = count;
+
+            setInnerText('total-sits', parseInt(document.getElementById('total-sits').innerText) - 1)
+            setInnerText('selected-sit', count)
+
             const totalPrice = count * 550;
-            priceTotal.innerText = totalPrice;
-            grandTotal.innerText = totalPrice;
-            console.log(priceTotal.innerText)
+
+            setInnerText('total-price', totalPrice)
+            setInnerText('grand-total', totalPrice)
+
             const newDiv1 = createDiv(event.target.innerText);
             sits.appendChild(newDiv1)
-            box.classList.remove('box')
-            box.classList.add('removebg')
-            enableButton();
-            if (count == 4) {
-                couponField.disabled = false;
-                couponField.classList.remove('disabled:bg-gray-500', 'disabled:cursor-not-allowed')
-                couponButton.disabled = false;
-                couponButton.classList.remove('disabled:bg-gray-400', 'disabled:cursor-not-allowed')
-                couponButton.addEventListener('click', applyDiscount)
 
+            removeClass(box, 'box')
+            addClass(box, 'removebg')
+
+            enableButton();
+
+            if (count == 4) {
+                buttonEnable('coupon')
+
+                removeClass('coupon', 'disabled:bg-gray-500')
+                removeClass('coupon', 'disabled:cursor-not-allowed')
+
+                buttonEnable('coupon-button')
+
+                removeClass('coupon-button', 'disabled:bg-gray-400')
+                removeClass('coupon-button', 'disabled:cursor-not-allowed')
+
+                couponButton.addEventListener('click', applyDiscount)
             }
         }
+
         else {
             alert("Can't Buy More than 4 tickets")
         }
+
     }
     else if (event.target.classList.contains('removebg')) {
 
-        box.classList.remove('bg-[#1DD100]', 'removebg');
-        box.classList.add('bg-gray-100', 'box');
+        removeClass(box, 'bg-[#1DD100]')
+        removeClass(box, 'removebg')
+
+        addClass(box, 'bg-gray-100')
+        addClass(box, 'box')
+
+
         const removeDiv = document.getElementById("div-" + event.target.innerText)
         removeDiv.remove();
         count--;
-        totalSits.innerText = parseInt(totalSits.innerText) + 1;
-        selectedSit.innerText = count;
+
+        setInnerText('total-sits', parseInt(document.getElementById('total-sits').innerText) + 1)
+
+        setInnerText('selected-sit', count)
+
         const totalPrice = count * 550;
-        priceTotal.innerText = totalPrice;
-        grandTotal.innerText = totalPrice;
+
+        setInnerText('total-price', totalPrice)
+        setInnerText('grand-total', totalPrice)
+
         enableButton();
+
         if (count < 4) {
-            couponField.disabled = true;
-            couponField.classList.add('disabled:bg-gray-500', 'disabled:cursor-not-allowed')
+            buttonDisable('coupon')
+
+            addClass('discount-display', 'hidden')
+
+            addClass('coupon', 'disabled:bg-gray-500');
+            addClass('coupon', 'disabled:cursor-not-allowed');
+
             couponField.value = ""
-            couponButton.disabled = true;
-            couponButton.classList.add('disabled:bg-gray-400', 'disabled:cursor-not-allowed')
+
+            buttonDisable('coupon-button');
+
+            addClass('coupon-button', 'disabled:bg-gray-400');
+            addClass('coupon-button', 'disabled:cursor-not-allowed');
+
         }
     }
 
 });
 
 function enableButton() {
-    const selectedSits = document.getElementById('selected-sit');
-    const totalSits = parseInt(selectedSits.innerText)
+
+    const totalSits = parseInt(document.getElementById('selected-sit').innerText)
     const phoneNumber = document.getElementById('phone-number');
-    const ebtn = document.getElementById('next-btn');
-    const isPhoneValid = phoneNumber.value.trim() !== "" && !isNaN(phoneNumber.value);
-    const hasSeats = totalSits > 0;
 
-    if (isPhoneValid && hasSeats) {
+    if ((phoneNumber.value.trim() !== "" && !isNaN(phoneNumber.value)) && totalSits > 0) {
 
-        ebtn.disabled = false;
-        ebtn.classList.remove('disabled:bg-gray-400', 'disabled:cursor-not-allowed')
+        buttonEnable('next-btn')
+
+        removeClass('next-btn', 'disabled:bg-gray-400')
+        removeClass('next-btn', 'disabled:cursor-not-allowed')
+
     } else {
-        ebtn.disabled = true;
-        ebtn.classList.add('disabled:bg-gray-400', 'disabled:cursor-not-allowed');
+
+        buttonDisable('next-btn')
+
+        addClass('next-btn', 'disabled:bg-gray-400')
+        addClass('next-btn', 'disabled:cursor-not-allowed')
+
     }
 }
 const phoneNumber = document.getElementById('phone-number');
 phoneNumber.addEventListener('keyup', enableButton);
+
+
+
 function applyDiscount() {
     const couponField = document.getElementById('coupon');
-    const discountDisplay = document.getElementById('discount-display');
-    const grandTotal = document.getElementById('grand-total');
-    const totalPrice = document.getElementById('total-price');
-    const discountPercentage = document.getElementById('discount-percentage');
+
     if (couponField.value == "NEW15") {
-        discountDisplay.classList.remove('hidden');
-        discountDisplay.classList.add('flex');
-        discountPercentage.innerText = "15%";
-        const discountedPrice = parseInt(totalPrice.innerText) - (parseInt(totalPrice.innerText) * 15 / 100);
-        grandTotal.innerText = discountedPrice;
+        removeClass('discount-display', 'hidden')
+        addClass('discount-display', 'flex')
+        discountCalculation(15)
         couponField.value = ""
 
     } else if (couponField.value == "Couple 20") {
-        discountDisplay.classList.remove('hidden');
-        discountDisplay.classList.add('flex');
-        discountPercentage.innerText = "20%";
-        const discountedPrice = parseInt(totalPrice.innerText) - (parseInt(totalPrice.innerText) * 20 / 100);
-        grandTotal.innerText = discountedPrice;
+        removeClass('discount-display', 'hidden')
+        addClass('discount-display', 'flex')
+        discountCalculation(20)
         couponField.value = ""
 
+    } else {
+        alert("Wrong Coupon Code! Enter Valid Coupon code....");
+        couponField.value = ""
     }
 }
